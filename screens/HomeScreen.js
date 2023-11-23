@@ -6,19 +6,23 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React, {useState} from 'react';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import React, { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   Bars3CenterLeftIcon,
   MagnifyingGlassIcon,
 } from 'react-native-heroicons/outline';
-import {styles} from '../theme';
+import { styles } from '../theme';
 import TrendingMovies from '../components/trendingMovies';
+import MovieList from '../components/movieList';
 
 const ios = Platform.OS == 'ios';
 
 export default function HomeScreen() {
   const [trending, setTrending] = useState([1, 2, 3]);
+  const [upcoming, setUpcoming] = useState([1, 2, 3]);
+  const [topRated, setTopRated] = useState([1, 2, 3]);
+
   return (
     <View className="flex-1 bg-neutral-800">
       {/* Status Bar and Logo */}
@@ -37,9 +41,15 @@ export default function HomeScreen() {
 
       <ScrollView
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{paddingBottom: 10}}>
+        contentContainerStyle={{ paddingBottom: 10 }}>
         {/* Trending Movies Carousels*/}
         <TrendingMovies data={trending} />
+
+        {/* Upcoming Movies Row */}
+        <MovieList title="Upcoming" data={upcoming} />
+
+        {/* Top rated movies Row */}
+        <MovieList title="Top Rated" data={topRated}/>
       </ScrollView>
     </View>
   );
