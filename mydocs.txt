@@ -1,0 +1,8 @@
+External Packages:
+
+1. react-navigator
+2. nativewind (--dev tainwindcss@3.3.2)
+3. react native hero icons
+4. react-native-snap-carousel
+4. expo-linear-gradient
+5. axios
