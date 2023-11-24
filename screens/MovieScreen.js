@@ -18,6 +18,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Cast from '../components/cast';
 import MovieList from '../components/movieList';
 import Loading from '../components/loading';
+import {fallBackMoviePoster, fetchMovieCredits, fetchMovieDetails, fetchMovieSimilar, image500} from '../api/moviedb';
 
 const {width, height} = Dimensions.get('window');
 const ios = Platform.OS == 'ios';
@@ -37,13 +38,37 @@ export default function MovieScreen() {
   const {params: item} = useRoute();
   const [isFavourite, setIsFavourite] = useState(false);
   const navigation = useNavigation();
-  const [cast, setCast] = useState([1, 2, 3, 4]);
-  const [similarMovies, setSimilarMovies] = useState([1, 2, 3, 4]);
+  const [cast, setCast] = useState([]);
+  const [similarMovies, setSimilarMovies] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [movie, setMovie] = useState({});
 
   useEffect(() => {
     // fetch the movie detail on change from api
+    // console.log('item ', item.id);
+    setLoading(true);
+    getMovieDetails(item.id);
+    getMovieCredits(item.id);
+    getMovieSimilar(item.id);
   }, [item]);
+
+  const getMovieDetails = async id => {
+    const data = await fetchMovieDetails(id);
+    if (data) setMovie(data);
+    // console.log('got data!', data);
+    setLoading(false);
+  };
+
+  const getMovieCredits = async id => {
+    const data = await fetchMovieCredits(id);
+    if(data && data.cast) setCast(data.cast); 
+  }
+
+  const getMovieSimilar = async id => {
+    const data = await fetchMovieSimilar(id);
+    if(data && data.results) setSimilarMovies(data.results) ;
+  }
+
   return (
     <ScrollView
       contentContainerStyle={{paddingBottom: 20}}
@@ -70,7 +95,10 @@ export default function MovieScreen() {
         ) : (
           <View>
             <Image
-              source={require('../assets/images/movie_poster.jpg')}
+              // source={require('../assets/images/movie_poster.jpg')}
+              source={{
+                uri: image500(movie?.poster_path) || fallBackMoviePoster,
+              }}
               style={{width, height: height * 0.55, marginTop: -42}}
             />
             <LinearGradient
@@ -90,36 +118,34 @@ export default function MovieScreen() {
       {/* {Movie details} */}
       <View style={{marginTop: -(height * 0.09)}} className="space-y-3">
         <Text className="text-white text-center text-3xl font-bold tracking-wider">
-          The Killer
+          {movie?.title}
         </Text>
+
         {/* {status, release, runtime} */}
-        <Text className="text-neutral-400 font-semibold text-base text-center">
-          Released - 2020 - 170 min
-        </Text>
+        {movie?.id ? (
+          <Text className="text-neutral-400 font-semibold text-base text-center">
+            {movie?.status} - {movie?.release_date.split('-')[0]} -{' '}
+            {movie?.runtime} min
+          </Text>
+        ) : null}
 
         {/* {genres} */}
         <View className="flex-row justify-center mx-4 space-x-2">
-          <Text className="text-neutral-400 font-semibold text-base text-center">
-            Action *
-          </Text>
-          <Text className="text-neutral-400 font-semibold text-base text-center">
-            Thrill *
-          </Text>
-          <Text className="text-neutral-400 font-semibold text-base text-center">
-            Comedy *
-          </Text>
+          {movie?.genres?.map((genre, index) => {
+            let dotVisible = index + 1 != movie.genres.length;
+            return (
+              <Text
+                key={index}
+                className="text-neutral-400 font-semibold text-base text-center">
+                {genre?.name} {dotVisible? '*' : null}
+              </Text>
+            );
+          })}
         </View>
 
         {/* {description} */}
         <Text className="text-neutral-300 mx-2 tracking-wide">
-          *OPPENHEIMER IS "NOT FOR EVERYONE" AS STATED BY CHRISTROPHER NOLAN
-          BEFORE THE RELEASE OF THE FILM HIMSELF. * But those who have ample
-          knowledge of physics and chemistry, this film is a masterpiece. The
-          film takes the viewer into the mind of the "Father of the atomic bomb"
-          how he thinks, how he feels with much accuracy. Nolan beautifully
-          explains his life both on a private and professional front. The music,
-          the sounds with each scene are top notch. The visuals of QUANTUM
-          PHYSICS, FISSION, NUCLEAR EXPLOSION are mind-boggling.
+          {movie?.overview}
         </Text>
       </View>
 
@@ -127,11 +153,11 @@ export default function MovieScreen() {
       <Cast navigation={navigation} cast={cast} />
 
       {/* {similar movies} */}
-      {/* <MovieList
+      <MovieList
         title="Similar Movies"
         data={similarMovies}
         hideSeeAll={true}
-      /> */}
+      />
     </ScrollView>
   );
 }

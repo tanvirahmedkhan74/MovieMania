@@ -7,24 +7,46 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {ChevronLeftIcon} from 'react-native-heroicons/outline';
 import {HeartIcon} from 'react-native-heroicons/solid';
 import {styles} from '../theme';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import MovieList from '../components/movieList';
 import Loading from '../components/loading';
+import { fallBackPersonImage, fetchPersonDetails, fetchPersonMovies, image342 } from '../api/moviedb';
 
 var {width, height} = Dimensions.get('window');
 const ios = Platform.OS == 'ios';
 const topMargin = ios ? '' : 'mt-3';
 
 export default function PersonScreen() {
+  const {params: item} = useRoute();
+
+  const [person, setPerson] = useState([]);
+  const [personMovies, setPersonMovies] = useState([]);
   const [isFavourite, setIsFavourite] = useState(false);
   const navigation = useNavigation();
-  const [personMovies, setPersonMovies] = useState([1, 2, 3, 4, 5]);
+ 
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setLoading(true);
+    getPersonDetails(item.id);
+    getPersonMovies(item.id);
+  }, [item])
+
+  const getPersonDetails = async id=> {
+    const data = await fetchPersonDetails(id);
+    if(data) setPerson(data);
+    setLoading(false);
+  }
+
+  const getPersonMovies = async id=> {
+    const data = await fetchPersonMovies(id);
+    if(data && data.cast) setPersonMovies(data.cast);
+  }
 
   return (
     <ScrollView
@@ -60,7 +82,8 @@ export default function PersonScreen() {
             }}>
             <View className="items-center rounded-full overflow-hidden h-72 w-72 border-2">
               <Image
-                source={require('../assets/images/cast.jpg')}
+                // source={require('../assets/images/cast.jpg')}
+                source={{uri: image342(person.profile_path) || fallBackPersonImage}}
                 style={{width: width * 0.74, height: height * 0.44}}
               />
             </View>
@@ -68,28 +91,32 @@ export default function PersonScreen() {
 
           <View className="mt-6">
             <Text className="text-3xl text-white font-bold text-center">
-              Cillian Murphy
+              {person?.name}
             </Text>
             <Text className="text-base text-neutral-300 text-center">
-              London, United Kingdom
+              {person?.place_of_birth}
             </Text>
           </View>
           <View className="mx-3 p-4 mt-6 flex-row justify-between items-center bg-neutral-700 rounded-full">
             <View className="border-r-2 border-r-neutral-400 px-2 items-center">
               <Text className="text-white font-semibold">Gender</Text>
-              <Text className="text-neutral-300 font-sm">Male</Text>
+              <Text className="text-neutral-300 font-sm">
+                {
+                  person?.gender == '1' ? 'Female' : 'Male'
+                }
+              </Text>
             </View>
             <View className="border-r-2 border-r-neutral-400 px-2 items-center">
               <Text className="text-white font-semibold">Birthdate</Text>
-              <Text className="text-neutral-300 font-sm">1964-09-02</Text>
+              <Text className="text-neutral-300 font-sm">{person?.birthday}</Text>
             </View>
             <View className="border-r-2 border-r-neutral-400 px-2 items-center">
               <Text className="text-white font-semibold">Known For</Text>
-              <Text className="text-neutral-300 font-sm">Acting</Text>
+              <Text className="text-neutral-300 font-sm">{person?.known_for_department}</Text>
             </View>
             <View className="px-2 items-center">
               <Text className="text-white font-semibold">Popularity</Text>
-              <Text className="text-neutral-300 font-sm">78.9</Text>
+              <Text className="text-neutral-300 font-sm">{person?.popularity?.toFixed(2)}</Text>
             </View>
           </View>
 
@@ -97,15 +124,7 @@ export default function PersonScreen() {
           <View className="my-6 mx-4 space-y-2">
             <Text className="text-white text-lg">Biography</Text>
             <Text className="text-neutral-400 tracking-wide">
-              Cillian Murphy (born 25 May 1976) is an Irish actor. He made his
-              professional debut in Enda Walsh's 1996 play Disco Pigs, a role he
-              later reprised in the 2001 screen adaptation. His early notable
-              film credits include the horror film 28 Days Later (2002), the
-              dark comedy Intermission (2003), the thriller Red Eye (2005), the
-              Irish war drama The Wind That Shakes the Barley (2006), and the
-              science fiction thriller Sunshine (2007). He played a transgender
-              Irish woman in the comedy-drama Breakfast on Pluto (2005), which
-              earned him a Golden Globe Award nomination.
+              {person?.biography || 'N/A'}
             </Text>
           </View>
 
