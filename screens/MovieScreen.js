@@ -18,7 +18,13 @@ import LinearGradient from 'react-native-linear-gradient';
 import Cast from '../components/cast';
 import MovieList from '../components/movieList';
 import Loading from '../components/loading';
-import {fallBackMoviePoster, fetchMovieCredits, fetchMovieDetails, fetchMovieSimilar, image500} from '../api/moviedb';
+import {
+  fallBackMoviePoster,
+  fetchMovieCredits,
+  fetchMovieDetails,
+  fetchMovieSimilar,
+  image500,
+} from '../api/moviedb';
 
 const {width, height} = Dimensions.get('window');
 const ios = Platform.OS == 'ios';
@@ -61,13 +67,13 @@ export default function MovieScreen() {
 
   const getMovieCredits = async id => {
     const data = await fetchMovieCredits(id);
-    if(data && data.cast) setCast(data.cast); 
-  }
+    if (data && data.cast) setCast(data.cast);
+  };
 
   const getMovieSimilar = async id => {
     const data = await fetchMovieSimilar(id);
-    if(data && data.results) setSimilarMovies(data.results) ;
-  }
+    if (data && data.results) setSimilarMovies(data.results);
+  };
 
   return (
     <ScrollView
@@ -137,7 +143,7 @@ export default function MovieScreen() {
               <Text
                 key={index}
                 className="text-neutral-400 font-semibold text-base text-center">
-                {genre?.name} {dotVisible? '*' : null}
+                {genre?.name} {dotVisible ? '*' : null}
               </Text>
             );
           })}
@@ -150,14 +156,17 @@ export default function MovieScreen() {
       </View>
 
       {/* {cast} */}
-      <Cast navigation={navigation} cast={cast} />
+      {cast.length > 0 && <Cast navigation={navigation} cast={cast} />}
 
       {/* {similar movies} */}
-      <MovieList
-        title="Similar Movies"
-        data={similarMovies}
-        hideSeeAll={true}
-      />
+
+      {similarMovies.length > 0 && (
+        <MovieList
+          title="Similar Movies"
+          data={similarMovies}
+          hideSeeAll={true}
+        />
+      )}
     </ScrollView>
   );
 }
