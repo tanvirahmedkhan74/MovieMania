@@ -13,6 +13,7 @@ import React, {useState} from 'react';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {XMarkIcon} from 'react-native-heroicons/outline';
 import {useNavigation} from '@react-navigation/native';
+import Loading from '../components/loading';
 
 const {width, height} = Dimensions.get('window');
 const ios = Platform.OS == 'ios';
@@ -20,6 +21,8 @@ const ios = Platform.OS == 'ios';
 export default function SearchScreen() {
   const navigation = useNavigation();
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+
   let movieName = 'The Killer';
 
   return (
@@ -39,7 +42,10 @@ export default function SearchScreen() {
       </View>
 
       {/* {serach result} */}
-      {results.length > 0 ? (
+
+      {loading ? (
+        <Loading />
+      ) : results.length > 0 ? (
         <ScrollView
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{paddingHorizontal: 15}}
@@ -74,10 +80,10 @@ export default function SearchScreen() {
         </ScrollView>
       ) : (
         <View className="flex-row justify-center">
-            <Image 
-                source={require('../assets/images/no_result.jpg')}
-                className="h-95 w-95"
-            />
+          <Image
+            source={require('../assets/images/no_result.jpg')}
+            className="h-95 w-95"
+          />
         </View>
       )}
     </SafeAreaView>
