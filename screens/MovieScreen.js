@@ -15,6 +15,8 @@ import {ChevronLeftIcon} from 'react-native-heroicons/outline';
 import {HeartIcon} from 'react-native-heroicons/solid';
 import {styles} from '../theme';
 import LinearGradient from 'react-native-linear-gradient';
+import Cast from '../components/cast';
+import MovieList from '../components/movieList';
 
 const {width, height} = Dimensions.get('window');
 const ios = Platform.OS == 'ios';
@@ -34,6 +36,8 @@ export default function MovieScreen() {
   const {params: item} = useRoute();
   const [isFavourite, setIsFavourite] = useState(false);
   const navigation = useNavigation();
+  const [cast, setCast] = useState([1, 2, 3, 4]);
+  const [similarMovies, setSimilarMovies] = useState([1,2,3,4])
 
   useEffect(() => {
     // fetch the movie detail on change from api
@@ -100,7 +104,7 @@ export default function MovieScreen() {
         </View>
 
         {/* {description} */}
-        <Text className="text-neutral-400 mx-2 tracking-wide">
+        <Text className="text-neutral-300 mx-2 tracking-wide">
           *OPPENHEIMER IS "NOT FOR EVERYONE" AS STATED BY CHRISTROPHER NOLAN
           BEFORE THE RELEASE OF THE FILM HIMSELF. * But those who have ample
           knowledge of physics and chemistry, this film is a masterpiece. The
@@ -111,6 +115,12 @@ export default function MovieScreen() {
           PHYSICS, FISSION, NUCLEAR EXPLOSION are mind-boggling.
         </Text>
       </View>
+
+      {/* {cast} */}
+      <Cast navigation={navigation} cast={cast} />
+
+      {/* {similar movies} */}
+      <MovieList title="Similar Movies" data={similarMovies} hideSeeAll={true}/>
     </ScrollView>
   );
 }
